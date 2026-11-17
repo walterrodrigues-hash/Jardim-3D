@@ -1,0 +1,7 @@
+{
+  "name": "jardim-3d",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gestão de pedidos, estoque de filamento e lucro para impressão 3D",
+  "scripts": { "build": "node build.js" }
+}
