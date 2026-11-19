@@ -212,8 +212,8 @@ function loginUI(){
     d.style.cssText="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#0f1a14;font-family:system-ui,sans-serif";
     d.innerHTML=`<form style="background:#fff;color:#111;border-radius:14px;padding:28px;width:min(360px,92vw);display:grid;gap:12px">
       <h2 style="margin:0">Jardim 3D</h2><p style="margin:0;color:#555;font-size:14px">Entre para acessar seus dados.</p>
-      <label style="display:grid;gap:4px;font-size:13px">E-mail<input name="e" type="email" required autocomplete="username" style="padding:9px;border:1px solid #bbb;border-radius:8px;font-size:15px"></label>
-      <label style="display:grid;gap:4px;font-size:13px">Senha<input name="p" type="password" required autocomplete="current-password" style="padding:9px;border:1px solid #bbb;border-radius:8px;font-size:15px"></label>
+      <label style="display:grid;gap:4px;font-size:13px;color:#333">E-mail<input name="e" type="email" required autocomplete="username" style="padding:9px;border:1px solid #bbb;border-radius:8px;font-size:15px;background:#fff;color:#111;width:100%;box-sizing:border-box"></label>
+      <label style="display:grid;gap:4px;font-size:13px;color:#333">Senha<input name="p" type="password" required autocomplete="current-password" style="padding:9px;border:1px solid #bbb;border-radius:8px;font-size:15px;background:#fff;color:#111;width:100%;box-sizing:border-box"></label>
       <div class="err" style="color:#c0302f;font-size:13px;min-height:16px"></div>
       <button style="padding:10px;border:0;border-radius:8px;background:#16a34a;color:#fff;font-size:15px;font-weight:600;cursor:pointer">Entrar</button></form>`;
     document.body.appendChild(d);
