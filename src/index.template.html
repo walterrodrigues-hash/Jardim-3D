@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#6d28d9">
 <title>Jardim 3D</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
@@ -118,7 +124,68 @@ details.tv summary{cursor:pointer;color:var(--accent)}
 pre.out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,monospace;max-height:50vh;overflow:auto}
 @media (max-width:640px){.fg .w2{grid-column:1/-1}.fl{grid-template-columns:1fr 90px auto}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------- Mobile ---------- */
+.panel:has(>svg.ch){overflow-x:auto}
+@media (max-width:760px){
+  body{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));padding-bottom:max(40px,env(safe-area-inset-bottom,0px))}
+  header.top{padding-block:12px 8px;gap:10px}
+  .brand{font-size:24px}
+  .quick{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .quick .primary{grid-column:1/-1}
+  .quick button{min-height:44px;padding-inline:8px}
+  nav#nav{position:sticky;top:0;z-index:20;margin-inline:-12px;padding-inline:8px;background:var(--surface);box-shadow:0 6px 14px -12px rgba(30,16,88,.6);scrollbar-width:none}
+  nav#nav::-webkit-scrollbar{display:none}
+  nav#nav a{padding:13px 12px}
+  button{min-height:42px;padding:9px 14px}
+  button.ghost{min-height:38px}
+  input,select,textarea{font-size:16px;min-height:42px;padding:9px 10px}
+  textarea{min-height:80px}
+  h2{font-size:16px}
+  .panel{padding:12px;border-radius:12px}
+  .stack,.cols2,.cols3{gap:12px}
+  .kpis{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi{padding:12px 10px 10px}
+  .kpi .v{font-size:19px}
+  .kpi .l{font-size:10px}
+  .row>label[style],.row label[style*="width"]{width:100%!important;max-width:none!important}
+  .row{gap:8px}
+  .fg{grid-template-columns:1fr 1fr;gap:10px}
+  .fg .w2,.fg .wall{grid-column:1/-1}
+  .fl{grid-template-columns:1fr 90px auto}
+  .hb{grid-template-columns:minmax(70px,110px) 1fr auto;font-size:12px}
+  svg.ch{min-width:560px}
+  .thumbs img{height:56px}
+
+  /* tabelas viram cartões; os rótulos vêm do cabeçalho (ver script no fim) */
+  .tw{overflow:visible}
+  table,thead,tbody,tfoot,tr{display:block;width:100%}
+  table[style]{min-width:0!important}
+  thead{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+  tbody tr,tfoot tr{border:1px solid var(--line);border-radius:12px;padding:4px 12px;margin-bottom:10px;background:var(--surface);box-shadow:0 4px 12px -10px rgba(109,40,217,.5)}
+  td{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px dashed var(--line);padding:8px 0;text-align:right;min-height:36px;white-space:normal}
+  td:last-child{border-bottom:0}
+  td::before{content:attr(data-label);flex:0 0 36%;max-width:40%;text-align:left;color:var(--muted);font:600 11px/1.3 var(--body);text-transform:uppercase;letter-spacing:.05em}
+  td[data-label=""]::before,td:not([data-label])::before{display:none}
+  td[colspan]{display:block;text-align:center}
+  td .num,td.num{white-space:normal}
+  td select,td input{width:auto;flex:1;min-width:0;max-width:62%}
+  td:has(>button){flex-wrap:wrap;justify-content:flex-end}
+  td:has(>button)::before{flex:1 0 100%;max-width:none}
+
+  /* janelas viram folhas na parte de baixo da tela */
+  .ov{padding:0;align-items:flex-end}
+  .md,.md.wide{max-width:none;max-height:94dvh;border-radius:16px 16px 0 0;border-left:0;border-right:0;border-bottom:0}
+  .md>header{padding:12px 14px}
+  .md .bd{padding:12px 14px}
+  .md>footer{position:sticky;bottom:0;background:var(--surface);padding:10px 14px max(12px,env(safe-area-inset-bottom,0px))}
+  .md>footer button{flex:1 1 auto}
+  #tip{display:none!important}
+}
+@media (max-width:380px){.fg{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header class="top">
@@ -1110,3 +1177,27 @@ document.addEventListener("change",async e=>{
 });
 initStore();renderAll();
 </script>
+
+<script>
+/* Rótulos das células para as tabelas em modo cartão (celular). */
+(function(){
+  function label(root){
+    root.querySelectorAll("table").forEach(function(t){
+      var hs=[].map.call(t.querySelectorAll("thead th"),function(h){return h.textContent.trim()});
+      if(!hs.length)return;
+      t.querySelectorAll("tbody tr, tfoot tr").forEach(function(tr){
+        var i=0;[].forEach.call(tr.children,function(td){
+          if(td.tagName!=="TD")return;
+          if(td.colSpan>1){i+=td.colSpan;return}
+          td.setAttribute("data-label",hs[i]||"");i++;
+        });
+      });
+    });
+  }
+  var q=null;function sched(){if(q)return;q=requestAnimationFrame(function(){q=null;label(document)})}
+  new MutationObserver(sched).observe(document.body,{childList:true,subtree:true});
+  sched();
+})();
+</script>
+</body>
+</html>
