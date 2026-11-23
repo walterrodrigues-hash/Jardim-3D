@@ -64,10 +64,6 @@ th.num{text-align:right}
 td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
 tr:last-child td{border-bottom:0}
 select.stsel{font-weight:600;border-width:1px}
-select.stsel.st-ok{background:linear-gradient(135deg,#bbf7d0,#4ade80 55%,#16a34a);color:#052e16;border-color:#16a34a}
-select.stsel.st-ready{background:linear-gradient(135deg,#bfdbfe,#60a5fa 55%,#2563eb);color:#0b1f4d;border-color:#2563eb}
-select.stsel.st-other{background:linear-gradient(135deg,#fef9c3,#fde047 55%,#eab308);color:#422006;border-color:#ca8a04}
-select.stsel option{background:var(--surface,#fff);color:var(--text,#111)}
 .badge{display:inline-block;padding:1px 9px;border-radius:999px;font:500 12px/18px var(--body);border:1px solid var(--line);white-space:nowrap}
 .b-bad{color:var(--bad);border-color:var(--bad)} .b-warn{color:var(--warn);border-color:var(--warn)} .b-good{color:var(--good);border-color:var(--good)} .b-info{color:var(--accent);border-color:var(--accent)}
 .empty{color:var(--muted);text-align:center;padding:28px 12px}
@@ -156,7 +152,25 @@ tbody tr:hover td{background:rgba(255,255,255,.03)}
 pre.out{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.12);border-radius:12px}
 #tip{background:#eef2ff;color:#0a1022}
 a{color:var(--accent)}
-select.stsel{border-radius:12px}
+
+/* ---------- Cores por status (cada status tem a sua) ---------- */
+select.stsel,select[data-d="status"]{--k:#9aa6cf;font-weight:600;border-radius:14px;padding-left:30px;color:color-mix(in srgb,var(--k) 55%,#fff);
+  background:radial-gradient(circle at 15px 50%,var(--k) 0 4.5px,transparent 5.5px),linear-gradient(150deg,color-mix(in srgb,var(--k) 34%,transparent),rgba(255,255,255,.04) 80%);
+  border:1px solid color-mix(in srgb,var(--k) 62%,transparent);box-shadow:0 8px 20px -14px var(--k)}
+[data-st="orcamento"]{--k:#8f7bff}
+[data-st="aprovado"]{--k:#3fdc86}
+[data-st="producao"]{--k:#ffb15c}
+[data-st="pronto"]{--k:#6cb6ff}
+[data-st="entregue"]{--k:#2dd4bf}
+[data-st="cancelado"]{--k:#ff6b7f}
+select.stsel option,select[data-d="status"] option{background:#121a33;font-weight:600}
+option[value="orcamento"]{color:#b4a6ff}
+option[value="aprovado"]{color:#3fdc86}
+option[value="producao"]{color:#ffb15c}
+option[value="pronto"]{color:#6cb6ff}
+option[value="entregue"]{color:#2dd4bf}
+option[value="cancelado"]{color:#ff6b7f}
+select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-thickness:1px}
 
 /* ---------- Seletor com busca ---------- */
 .cb{position:relative}
@@ -679,7 +693,7 @@ function pedidosRows(){
   return list.map(p=>{const o=orderCalc(p,c);return `<tr>
     <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)).join(", ")}</div></td>
     <td>${fmtD(p.data)}</td><td>${fmtD(p.prazo)} ${deadlineBadge(p)}</td>
-    <td><select class="stsel ${p.status==="aprovado"?"st-ok":p.status==="pronto"?"st-ready":"st-other"}" data-act-change="status" data-id="${p.id}" aria-label="Status do pedido ${p.numero}">${STAT.map(([k,l])=>`<option value="${k}"${k===p.status?" selected":""}>${l}</option>`).join("")}</select></td>
+    <td><select class="stsel" data-st="${p.status}" data-act-change="status" data-id="${p.id}" aria-label="Status do pedido ${p.numero}">${STAT.map(([k,l])=>`<option value="${k}"${k===p.status?" selected":""}>${l}</option>`).join("")}</select></td>
     <td class="num">${brl(o.total)}</td><td class="num ${o.saldo>0.005&&p.status!=="cancelado"?"warn":""}">${brl(o.saldo)}</td>
     <td class="num ${o.lucro>=0?"good":"bad"}">${brl(o.lucro)}<div class="mut sm">${o.apurado?"apurado":"estimado"}</div></td>
     <td class="num"><button class="ghost" data-act="edit-pedido" data-id="${p.id}">Editar</button><button class="ghost" data-act="dup-pedido" data-id="${p.id}">Duplicar</button><button class="ghost" data-act="pag-pedido" data-id="${p.id}">Pagamento</button>${p.producao||p.status==="orcamento"||p.status==="cancelado"?"":`<button class="ghost" data-act="producao" data-id="${p.id}">Produção</button>`}<button class="ghost danger" data-act="del-pedido" data-id="${p.id}">Excluir</button></td></tr>`}).join("");
@@ -1238,7 +1252,9 @@ initStore();renderAll();
       });
     });
   }
-  var q=null;function sched(){if(q)return;q=requestAnimationFrame(function(){q=null;label(document);if(window.__enhanceSearch)window.__enhanceSearch()})}
+  function syncSt(){document.querySelectorAll('select.stsel,select[data-d="status"]').forEach(function(e){if(e.getAttribute("data-st")!==e.value)e.setAttribute("data-st",e.value)})}
+  document.addEventListener("change",function(e){if(e.target&&e.target.matches&&e.target.matches('select.stsel,select[data-d="status"]'))syncSt()},true);
+  var q=null;function sched(){if(q)return;q=requestAnimationFrame(function(){q=null;label(document);syncSt();if(window.__enhanceSearch)window.__enhanceSearch()})}
   new MutationObserver(sched).observe(document.body,{childList:true,subtree:true});
   sched();
 })();
