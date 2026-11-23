@@ -3,36 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#6d28d9">
+<meta name="theme-color" content="#0a1022">
 <title>Jardim 3D</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
 :root{
-  /* Layout: cabeçalho com ações rápidas, abas por assunto, uma área de trabalho larga. Gráficos usam a paleta categórica validada (azul, laranja). */
-  --bg:#f4f6ff; --surface:#ffffff; --fg:#161a33; --muted:#5b6285; --line:#dfe3f5; --soft:#eeeaff;
-  --accent:#6d28d9; --accent-fg:#ffffff;
-  --grad:linear-gradient(135deg,#0e7490 0%,#6d28d9 55%,#be185d 100%);
-  --grad-soft:linear-gradient(135deg,#e0f7ff 0%,#efe7ff 55%,#ffe4f1 100%);
-  --bgfx:radial-gradient(900px 420px at 8% -5%,#d9f3ff 0%,transparent 60%),radial-gradient(800px 420px at 95% 0%,#f3e3ff 0%,transparent 60%),#f4f6ff;
-  --good:#0f7a2e; --bad:#c0302f; --warn:#9a6700;
-  --s1:#2a78d6; --s2:#eb6834; --grid:#e1e0d9; --axis:#c3c2b7; --ink2:#52514e;
+  /* Tema casa inteligente: marinho profundo, vidro fosco e acentos laranja, violeta, azul, rosa e verde. */
+  color-scheme:dark;
+  --bg:#0a1022; --surface:#121a33; --fg:#eef2ff; --muted:#9aa6cf; --line:rgba(255,255,255,.12); --soft:rgba(255,255,255,.07);
+  --accent:#6cb6ff; --accent-fg:#ffffff;
+  --c-orange:#ffb15c; --c-violet:#7a5cff; --c-blue:#6cb6ff; --c-pink:#ff72b0; --c-green:#3fdc86;
+  --grad:linear-gradient(135deg,#3b8ef0 0%,#6d4cff 100%);
+  --grad-soft:linear-gradient(135deg,rgba(108,182,255,.20),rgba(122,92,255,.20));
+  --bgfx:radial-gradient(760px 420px at 0% -4%,rgba(60,120,220,.40) 0%,transparent 62%),radial-gradient(700px 420px at 100% 6%,rgba(122,92,255,.32) 0%,transparent 60%),radial-gradient(600px 500px at 50% 110%,rgba(255,114,176,.14) 0%,transparent 60%),#0a1022;
+  --glass:linear-gradient(150deg,rgba(255,255,255,.09),rgba(255,255,255,.025));
+  --good:#3fdc86; --bad:#ff6b7f; --warn:#ffb15c;
+  --s1:#6cb6ff; --s2:#ffb15c; --grid:rgba(255,255,255,.10); --axis:rgba(255,255,255,.22); --ink2:#c9d1f0;
   --display:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0b0f22; --surface:#141a33; --fg:#eceeff; --muted:#a2a9d0; --line:#283058; --soft:#221d4a;
-  --accent:#a78bfa; --accent-fg:#ffffff;
-  --grad:linear-gradient(135deg,#0891b2 0%,#7c3aed 55%,#db2777 100%);
-  --grad-soft:linear-gradient(135deg,#0c2a3d 0%,#241c4d 55%,#3b1840 100%);
-  --bgfx:radial-gradient(900px 420px at 8% -5%,#0e3a52 0%,transparent 60%),radial-gradient(800px 420px at 95% 0%,#3a1a5e 0%,transparent 60%),#0b0f22; --good:#4ade80; --bad:#f87171; --warn:#facc15;
-  --s1:#3987e5; --s2:#d95926; --grid:#2c2c2a; --axis:#383835; --ink2:#c3c2b7; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0b0f22; --surface:#141a33; --fg:#eceeff; --muted:#a2a9d0; --line:#283058; --soft:#221d4a;
-  --accent:#a78bfa; --accent-fg:#ffffff;
-  --grad:linear-gradient(135deg,#0891b2 0%,#7c3aed 55%,#db2777 100%);
-  --grad-soft:linear-gradient(135deg,#0c2a3d 0%,#241c4d 55%,#3b1840 100%);
-  --bgfx:radial-gradient(900px 420px at 8% -5%,#0e3a52 0%,transparent 60%),radial-gradient(800px 420px at 95% 0%,#3a1a5e 0%,transparent 60%),#0b0f22; --good:#4ade80; --bad:#f87171; --warn:#facc15;
-  --s1:#3987e5; --s2:#d95926; --grid:#2c2c2a; --axis:#383835; --ink2:#c3c2b7; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bgfx) fixed;color:var(--fg);font:14px/1.5 var(--body);margin:0;padding-block:0 56px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -125,6 +114,50 @@ pre.out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);b
 @media (max-width:640px){.fg .w2{grid-column:1/-1}.fl{grid-template-columns:1fr 90px auto}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+/* ---------- Tema vidro ---------- */
+.brand{background:linear-gradient(120deg,#ffb15c,#ff72b0 45%,#7a5cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+nav#nav{border-bottom:0;gap:6px;padding-bottom:4px}
+nav#nav a{border-radius:999px;padding:8px 16px;margin-bottom:0;border:1px solid transparent}
+nav#nav a:hover{background:var(--soft)}
+nav#nav a[aria-current="page"]{background:linear-gradient(150deg,rgba(108,182,255,.28),rgba(122,92,255,.22));border-color:rgba(108,182,255,.55);color:#fff;box-shadow:0 0 18px -6px rgba(108,182,255,.7)}
+.panel,.box,.item,.md{background:var(--glass),rgba(18,26,51,.72);border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 10px 30px -18px rgba(0,0,0,.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.box,.item{border-radius:14px}
+.md{background:var(--glass),#101731}
+button{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;color:var(--fg)}
+button:hover:not(:disabled){background:rgba(255,255,255,.12);box-shadow:0 6px 16px -8px rgba(108,182,255,.6)}
+button.primary{background:var(--grad);border-color:rgba(255,255,255,.18);color:#fff;box-shadow:0 8px 20px -10px rgba(122,92,255,.9)}
+button.primary:hover:not(:disabled){background:var(--grad);filter:brightness(1.12)}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+button.danger{color:var(--bad)}
+input,select,textarea{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:10px;color:var(--fg)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,182,255,.22);outline:0}
+select option,select.stsel option{background:#121a33;color:#eef2ff}
+th{color:var(--muted);border-bottom:1px solid rgba(255,255,255,.12)}
+td{border-bottom:1px solid rgba(255,255,255,.08)}
+tbody tr:hover td{background:rgba(255,255,255,.03)}
+.kpi{--k:var(--c-blue);background:linear-gradient(150deg,color-mix(in srgb,var(--k) 24%,transparent),rgba(255,255,255,.03) 70%),rgba(18,26,51,.7);border:1px solid color-mix(in srgb,var(--k) 55%,transparent);border-radius:20px;box-shadow:0 12px 28px -18px var(--k);backdrop-filter:blur(10px)}
+.kpi::before{display:none}
+.kpi:nth-child(5n+1){--k:var(--c-orange)}
+.kpi:nth-child(5n+2){--k:var(--c-violet)}
+.kpi:nth-child(5n+3){--k:var(--c-blue)}
+.kpi:nth-child(5n+4){--k:var(--c-pink)}
+.kpi:nth-child(5n+5){--k:var(--c-green)}
+.kpi .l,.kpi summary{color:color-mix(in srgb,var(--k) 70%,#fff)}
+.kpi.hl{background:linear-gradient(150deg,color-mix(in srgb,var(--k) 38%,transparent),rgba(255,255,255,.04) 75%),rgba(18,26,51,.7);border-color:var(--k)}
+.hb .bar{background:rgba(255,255,255,.08);border-radius:8px}
+.hb .bar b{background:linear-gradient(90deg,#ffb15c,#ff72b0 55%,#7a5cff);border-radius:8px}
+.note{background:var(--grad-soft);border:1px solid rgba(108,182,255,.45);border-radius:14px}
+.warnbox{border-radius:14px;background:rgba(255,177,92,.08)}
+.badge{border-radius:999px;background:rgba(255,255,255,.05)}
+.chip[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+.ov{background:rgba(4,8,20,.66);backdrop-filter:blur(3px)}
+.md>header{border-bottom:1px solid rgba(255,255,255,.1)}
+.md>footer{border-top:1px solid rgba(255,255,255,.1)}
+pre.out{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.12);border-radius:12px}
+#tip{background:#eef2ff;color:#0a1022}
+a{color:var(--accent)}
+select.stsel{border-radius:12px}
+
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -134,7 +167,7 @@ pre.out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);b
   .quick{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .quick .primary{grid-column:1/-1}
   .quick button{min-height:44px;padding-inline:8px}
-  nav#nav{position:sticky;top:0;z-index:20;margin-inline:-12px;padding-inline:8px;background:var(--surface);box-shadow:0 6px 14px -12px rgba(30,16,88,.6);scrollbar-width:none}
+  nav#nav{position:sticky;top:0;z-index:20;margin-inline:-12px;padding-inline:8px;background:rgba(10,16,34,.88);backdrop-filter:blur(10px);box-shadow:0 8px 16px -14px #000;scrollbar-width:none}
   nav#nav::-webkit-scrollbar{display:none}
   nav#nav a{padding:13px 12px}
   button{min-height:42px;padding:9px 14px}
@@ -162,7 +195,7 @@ pre.out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);b
   table,thead,tbody,tfoot,tr{display:block;width:100%}
   table[style]{min-width:0!important}
   thead{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
-  tbody tr,tfoot tr{border:1px solid var(--line);border-radius:12px;padding:4px 12px;margin-bottom:10px;background:var(--surface);box-shadow:0 4px 12px -10px rgba(109,40,217,.5)}
+  tbody tr,tfoot tr{border:1px solid var(--line);border-radius:16px;padding:4px 12px;margin-bottom:10px;background:var(--glass),rgba(18,26,51,.7)}
   td{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px dashed var(--line);padding:8px 0;text-align:right;min-height:36px;white-space:normal}
   td:last-child{border-bottom:0}
   td::before{content:attr(data-label);flex:0 0 36%;max-width:40%;text-align:left;color:var(--muted);font:600 11px/1.3 var(--body);text-transform:uppercase;letter-spacing:.05em}
@@ -175,10 +208,10 @@ pre.out{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);b
 
   /* janelas viram folhas na parte de baixo da tela */
   .ov{padding:0;align-items:flex-end}
-  .md,.md.wide{max-width:none;max-height:94dvh;border-radius:16px 16px 0 0;border-left:0;border-right:0;border-bottom:0}
+  .md,.md.wide{max-width:none;max-height:94dvh;border-radius:22px 22px 0 0;border-left:0;border-right:0;border-bottom:0}
   .md>header{padding:12px 14px}
   .md .bd{padding:12px 14px}
-  .md>footer{position:sticky;bottom:0;background:var(--surface);padding:10px 14px max(12px,env(safe-area-inset-bottom,0px))}
+  .md>footer{position:sticky;bottom:0;background:#101731;padding:10px 14px max(12px,env(safe-area-inset-bottom,0px))}
   .md>footer button{flex:1 1 auto}
   #tip{display:none!important}
 }
@@ -289,13 +322,13 @@ async function api(path,opt){
 function loginUI(){
   return new Promise(res=>{
     const d=document.createElement("div");
-    d.style.cssText="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:radial-gradient(700px 400px at 15% 10%,#0e7490 0%,transparent 60%),radial-gradient(700px 400px at 90% 90%,#be185d 0%,transparent 60%),#1e1058;font-family:system-ui,sans-serif";
-    d.innerHTML=`<form style="background:#fff;color:#111;border-radius:14px;padding:28px;width:min(360px,92vw);display:grid;gap:12px">
-      <h2 style="margin:0;background:linear-gradient(135deg,#0e7490,#6d28d9 55%,#be185d);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content">Jardim 3D</h2><p style="margin:0;color:#555;font-size:14px">Entre para acessar seus dados.</p>
-      <label style="display:grid;gap:4px;font-size:13px;color:#333">E-mail<input name="e" type="email" required autocomplete="username" style="padding:9px;border:1px solid #bbb;border-radius:8px;font-size:15px;background:#fff;color:#111;width:100%;box-sizing:border-box"></label>
-      <label style="display:grid;gap:4px;font-size:13px;color:#333">Senha<input name="p" type="password" required autocomplete="current-password" style="padding:9px;border:1px solid #bbb;border-radius:8px;font-size:15px;background:#fff;color:#111;width:100%;box-sizing:border-box"></label>
-      <div class="err" style="color:#c0302f;font-size:13px;min-height:16px"></div>
-      <button style="padding:10px;border:0;border-radius:8px;background:linear-gradient(135deg,#0e7490,#6d28d9 55%,#be185d);color:#fff;font-size:15px;font-weight:600;cursor:pointer">Entrar</button></form>`;
+    d.style.cssText="position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:radial-gradient(700px 400px at 10% 5%,rgba(60,120,220,.5) 0%,transparent 60%),radial-gradient(700px 400px at 95% 95%,rgba(255,114,176,.30) 0%,transparent 60%),#0a1022;font-family:system-ui,sans-serif";
+    d.innerHTML=`<form style="background:linear-gradient(150deg,rgba(255,255,255,.10),rgba(255,255,255,.03)),#121a33;color:#eef2ff;border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:28px;width:min(360px,92vw);display:grid;gap:12px;box-shadow:0 20px 50px -20px #000">
+      <h2 style="margin:0;background:linear-gradient(120deg,#ffb15c,#ff72b0 45%,#7a5cff);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content">Jardim 3D</h2><p style="margin:0;color:#9aa6cf;font-size:14px">Entre para acessar seus dados.</p>
+      <label style="display:grid;gap:4px;font-size:13px;color:#9aa6cf">E-mail<input name="e" type="email" required autocomplete="username" style="padding:9px;border:1px solid rgba(255,255,255,.18);border-radius:12px;font-size:16px;background:rgba(255,255,255,.06);color:#eef2ff;width:100%;box-sizing:border-box"></label>
+      <label style="display:grid;gap:4px;font-size:13px;color:#9aa6cf">Senha<input name="p" type="password" required autocomplete="current-password" style="padding:9px;border:1px solid rgba(255,255,255,.18);border-radius:12px;font-size:16px;background:rgba(255,255,255,.06);color:#eef2ff;width:100%;box-sizing:border-box"></label>
+      <div class="err" style="color:#ff6b7f;font-size:13px;min-height:16px"></div>
+      <button style="padding:10px;border:0;border-radius:8px;background:linear-gradient(135deg,#3b8ef0,#6d4cff);color:#fff;font-size:15px;font-weight:600;cursor:pointer">Entrar</button></form>`;
     document.body.appendChild(d);
     d.querySelector("form").onsubmit=async ev=>{ev.preventDefault();const f=ev.target,er=d.querySelector(".err");er.textContent="";
       try{await auth("password",{email:f.querySelector("[name=e]").value.trim(),password:f.querySelector("[name=p]").value});d.remove();res()}catch(e){er.textContent=e.message==="Invalid login credentials"?"E-mail ou senha incorretos.":e.message}};
