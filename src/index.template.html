@@ -236,6 +236,11 @@ select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-t
 :root[data-theme="light"] .hb .bar b{background:linear-gradient(90deg,#f59e0b,#e0509a 55%,#6d4cff)}
 :root[data-theme="light"] .cb-list{box-shadow:0 18px 40px -14px rgba(40,50,120,.45)}
 
+/* ---------- Campo de busca ---------- */
+.srch{position:relative;flex:1 1 260px;max-width:420px;min-width:0}
+.srch span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.7;pointer-events:none}
+.srch input{padding-left:36px;border-radius:999px}
+
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -261,6 +266,7 @@ select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-t
   .kpi .l{font-size:10px}
   .row>label[style],.row label[style*="width"]{width:100%!important;max-width:none!important}
   .row{gap:8px}
+  .srch{flex:1 1 100%;max-width:none;order:5}
   .fg{grid-template-columns:1fr 1fr;gap:10px}
   .fg .w2,.fg .wall{grid-column:1/-1}
   .fl{grid-template-columns:1fr 90px auto}
@@ -922,16 +928,29 @@ function producaoModal(id){
 /* ====================================================================
    CLIENTES
    ==================================================================== */
-function vClientes(){
-  const c=ctx();
-  const rows=D.clientes.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).map(cl=>{
+const CF={q:""};
+const semAcento=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+function clientesRows(){
+  const c=ctx(),q=semAcento(CF.q).trim(),qd=q.replace(/\D/g,"");
+  const lista=D.clientes.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).filter(cl=>!q||semAcento(cl.nome).includes(q)||semAcento(cl.obs).includes(q)||(qd.length>=3&&String(cl.tel||"").replace(/\D/g,"").includes(qd)));
+  const rows=lista.map(cl=>{
     const ps=D.pedidos.filter(p=>p.clienteId===cl.id&&COUNT.includes(p.status)),tot=ps.reduce((s,p)=>s+orderCalc(p,c).total,0);
     const wa=(cl.tel||"").replace(/\D/g,"");
     return `<tr><td><strong>${esc(cl.nome)}</strong>${demoTag(cl)}<div class="mut sm">${esc(cl.obs||"")}</div></td><td>${esc(cl.tel||"—")} ${wa.length>=10?`<a href="https://wa.me/${wa.length<=11?"55"+wa:wa}" target="_blank" rel="noopener">WhatsApp</a>`:""}</td>
       <td class="num">${ps.length}</td><td class="num">${brl(tot)}</td><td class="num"><button class="ghost" data-act="edit-cli" data-id="${cl.id}">Editar</button><button class="ghost danger" data-act="del-cli" data-id="${cl.id}">Excluir</button></td></tr>`}).join("");
-  return `<div class="panel"><div class="row" style="margin-bottom:12px"><h2 style="margin:0">Clientes</h2><div class="sp"></div><button class="primary" data-act="edit-cli">+ Novo cliente</button></div>
-   <div class="tw"><table style="min-width:640px"><thead><tr><th>Cliente</th><th>Telefone / WhatsApp</th><th class="num">Pedidos</th><th class="num">Total comprado</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">Nenhum cliente cadastrado.</td></tr>'}</tbody></table></div></div>`;
+  return {rows:rows||`<tr><td colspan="5" class="empty">${q?"Nenhum cliente encontrado para esta busca.":"Nenhum cliente cadastrado."}</td></tr>`,n:lista.length};
 }
+function vClientes(){
+  const r=clientesRows();
+  return `<div class="panel"><div class="row" style="margin-bottom:12px"><h2 style="margin:0">Clientes</h2><span class="mut sm" id="cliN">${r.n} de ${D.clientes.length}</span><div class="sp"></div>
+    <div class="srch"><span aria-hidden="true">&#128269;</span><input id="cq" type="search" value="${esc(CF.q)}" placeholder="Buscar por nome, telefone ou observação" aria-label="Buscar cliente" autocomplete="off"></div>
+    <button class="primary" data-act="edit-cli">+ Novo cliente</button></div>
+   <div class="tw"><table style="min-width:640px"><thead><tr><th>Cliente</th><th>Telefone / WhatsApp</th><th class="num">Pedidos</th><th class="num">Total comprado</th><th></th></tr></thead><tbody id="crows">${r.rows}</tbody></table></div></div>`;
+}
+AFTER.clientes=()=>{
+  const inp=$("#cq");if(!inp)return;
+  inp.oninput=e=>{CF.q=e.target.value;const r=clientesRows();$("#crows").innerHTML=r.rows;$("#cliN").textContent=r.n+" de "+D.clientes.length};
+};
 function clienteModal(id){
   const c=D.clientes.find(x=>x.id===id)||{nome:"",tel:"",obs:""};
   openModal(id?"Editar cliente":"Novo cliente",`<div class="fg">${F("Nome","nome",c.nome,"required","w2")}${F("Telefone / WhatsApp","tel",c.tel,'inputmode="tel" placeholder="(92) 99999-9999"',"w2")}<label class="wall">Observações<textarea name="obs">${esc(c.obs||"")}</textarea></label></div>`,[
