@@ -158,6 +158,17 @@ pre.out{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.12);border-rad
 a{color:var(--accent)}
 select.stsel{border-radius:12px}
 
+/* ---------- Seletor com busca ---------- */
+.cb{position:relative}
+.cb::after{content:"\25BE";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:13px}
+.cb input{padding-right:30px;cursor:text}
+.cb-list{position:fixed;z-index:200;background:#121a33;border:1px solid rgba(255,255,255,.18);border-radius:14px;box-shadow:0 18px 40px -12px #000;overflow:auto;padding:6px;overscroll-behavior:contain}
+.cb-list div{padding:9px 12px;border-radius:9px;cursor:pointer;font-size:14px;color:var(--fg)}
+.cb-list div.on{background:rgba(108,182,255,.22)}
+.cb-list div.sel{font-weight:600}
+.cb-list div.pin{color:var(--c-green);border-top:1px solid rgba(255,255,255,.1);margin-top:4px;border-radius:0 0 9px 9px}
+.cb-list .none{color:var(--muted);cursor:default}
+
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -705,7 +716,7 @@ function renderDraft(){
   const imps=[["","Sem impressora"],...D.impressoras.map(i=>[i.id,i.nome])];
   root.innerHTML=`<div class="stack">
    <div class="fg">
-     ${SEL("Cliente","clienteId",clientes,draft.clienteId,"w2",'data-d="clienteId"')}
+     ${SEL("Cliente","clienteId",clientes,draft.clienteId,"w2",'data-d="clienteId" data-search')}
      <div class="w2 fg" id="newcli" ${draft.clienteId==="__new"?"":"hidden"} style="grid-template-columns:1fr 1fr"><label>Nome do cliente<input name="ncNome" data-d="_ncNome"></label><label>WhatsApp<input name="ncTel" data-d="_ncTel" inputmode="tel"></label></div>
      <label>Data do pedido<input type="date" data-d="data" value="${draft.data}"></label>
      <label>Prazo de entrega<input type="date" data-d="prazo" value="${draft.prazo||""}"></label>
@@ -722,7 +733,7 @@ function renderDraft(){
        <label>Preço unitário (R$)<input type="number" min="0" step="any" data-d="itens.${i}.preco" value="${esc(it.preco)}"></label>
      </div>
      <div class="box"><h3>Ficha de custo (por unidade)</h3>
-       ${it.fil.map((l,k)=>`<div class="fl" style="margin-bottom:6px">${SEL("Filamento","",fils,l.id,"",`data-d="itens.${i}.fil.${k}.id"`)}<label>Gramas<input type="number" min="0" step="any" data-d="itens.${i}.fil.${k}.g" value="${esc(l.g)}"></label>${it.fil.length>1?`<button class="ghost danger" data-act="d-del-fil" data-i="${i}" data-k="${k}" aria-label="Remover filamento">✕</button>`:"<span></span>"}</div>`).join("")}
+       ${it.fil.map((l,k)=>`<div class="fl" style="margin-bottom:6px">${SEL("Filamento","",fils,l.id,"",`data-d="itens.${i}.fil.${k}.id" data-search`)}<label>Gramas<input type="number" min="0" step="any" data-d="itens.${i}.fil.${k}.g" value="${esc(l.g)}"></label>${it.fil.length>1?`<button class="ghost danger" data-act="d-del-fil" data-i="${i}" data-k="${k}" aria-label="Remover filamento">✕</button>`:"<span></span>"}</div>`).join("")}
        <button class="ghost" data-act="d-add-fil" data-i="${i}">+ Outro filamento (peça multicolorida)</button>
        <div class="fg" style="margin-top:8px">
          <label>Horas de impressão<input type="number" min="0" step="any" data-d="itens.${i}.horas" value="${esc(it.horas)}"></label>
@@ -797,7 +808,7 @@ function pagamentoModal(id){
   const abertos=D.pedidos.filter(p=>COUNT.includes(p.status)||p.status==="orcamento");
   const c=ctx();
   const opts=[["","Selecione o pedido"],...D.pedidos.filter(p=>p.status!=="cancelado").sort((a,b)=>b.numero-a.numero).map(p=>{const o=orderCalc(p,c);return [p.id,`#${p.numero} · ${cli(p.clienteId).nome} · saldo ${brl(o.saldo)}`]})];
-  openModal("Registrar pagamento",`<div class="stack"><div class="fg">${SEL("Pedido","pid",opts,id||"","wall",'id="pagSel"')}
+  openModal("Registrar pagamento",`<div class="stack"><div class="fg">${SEL("Pedido","pid",opts,id||"","wall",'id="pagSel" data-search')}
     ${F("Valor (R$)","valor","",'type="number" min="0" step="any"')}${F("Data","data",today(),'type="date"')}
     ${SEL("Forma","forma",["Pix","Dinheiro","Cartão","Transferência","Outro"].map(x=>[x,x]),"Pix")}${SEL("Tipo","tipo",[["pagamento","Pagamento"],["sinal","Sinal"]],"pagamento")}</div>
     <div id="pagHist"></div></div>`,[
@@ -881,7 +892,7 @@ function vFilamentos(){
 function compraModal(filId){
   const opts=[["__new","+ Novo filamento"],...D.filamentos.map(f=>[f.id,filName(f)])];
   const sel=filId||(D.filamentos.length?D.filamentos[0].id:"__new");
-  openModal("Nova compra de filamento",`<div class="stack"><div class="fg">${SEL("Filamento","fid",opts,sel,"wall",'id="cfid"')}
+  openModal("Nova compra de filamento",`<div class="stack"><div class="fg">${SEL("Filamento","fid",opts,sel,"wall",'id="cfid" data-search')}
     <div class="wall fg" id="newfil" style="padding:0">${F("Marca","marca","",'placeholder="Bambu Lab"')}${F("Material","material","PLA")}${F("Cor","cor","")}${F("Fornecedor","fornecedor","")}${F("Estoque mínimo (g)","minimo","200",'type="number" min="0"')}</div>
     ${F("Peso comprado (g)","g","1000",'type="number" min="1" step="any"')}${F("Preço pago (R$)","preco","",'type="number" min="0" step="any"')}${F("Frete (R$)","frete","0",'type="number" min="0" step="any"')}${F("Data da compra","data",today(),'type="date"')}</div>
     <div class="box" id="cprev"></div></div>`,[
@@ -1038,7 +1049,7 @@ function vRelatorios(){
   const rows=relPedidos(),tot=rows.reduce((s,r)=>s+r.o.total,0),luc=rows.reduce((s,r)=>s+r.o.lucro,0);
   return `<div class="stack"><div class="panel"><h2>Filtros</h2><div class="row" style="align-items:end">${periodCtl()}
    <label style="width:200px">Produto<input id="rp" value="${esc(RF.prod)}" placeholder="parte do nome"></label>
-   <label style="width:200px">Cliente<select id="rc"><option value="">Todos</option>${D.clientes.map(c=>`<option value="${c.id}"${RF.cli===c.id?" selected":""}>${esc(c.nome)}</option>`).join("")}</select></label>
+   <label style="width:200px">Cliente<select id="rc" data-search><option value="">Todos</option>${D.clientes.map(c=>`<option value="${c.id}"${RF.cli===c.id?" selected":""}>${esc(c.nome)}</option>`).join("")}</select></label>
    <label style="width:170px">Status<select id="rs"><option value="">Todos</option>${STAT.map(([k,l])=>`<option value="${k}"${RF.st===k?" selected":""}>${l}</option>`).join("")}</select></label></div></div>
   <div class="panel"><div class="row" style="margin-bottom:10px"><h2 style="margin:0">${rows.length} pedido(s) · ${brl(tot)} · lucro ${brl(luc)}</h2><div class="sp"></div>
     <button data-act="exp-pedidos">Exportar pedidos (CSV)</button><button data-act="exp-estoque">Exportar estoque (CSV)</button><button data-act="exp-fin">Exportar financeiro (CSV)</button><button class="primary" data-act="exp-pdf">Resumo do período (PDF)</button></div>
@@ -1227,9 +1238,66 @@ initStore();renderAll();
       });
     });
   }
-  var q=null;function sched(){if(q)return;q=requestAnimationFrame(function(){q=null;label(document)})}
+  var q=null;function sched(){if(q)return;q=requestAnimationFrame(function(){q=null;label(document);if(window.__enhanceSearch)window.__enhanceSearch()})}
   new MutationObserver(sched).observe(document.body,{childList:true,subtree:true});
   sched();
+})();
+</script>
+
+<script>
+/* Seletor com busca: select[data-search] ganha campo de texto com lista filtrável. */
+(function(){
+  var norm=function(t){return String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase()};
+  var list=null,cur=null;
+  function close(){if(list){list.remove();list=null}if(cur){var c=cur;cur=null;c.input.value=c.text()}}
+  function enhance(sel){
+    sel.setAttribute("data-enh","1");sel.style.display="none";
+    var w=document.createElement("div");w.className="cb";
+    var inp=document.createElement("input");inp.type="text";inp.autocomplete="off";inp.setAttribute("aria-label","Buscar");inp.placeholder="Digite para buscar...";
+    w.appendChild(inp);sel.insertAdjacentElement("afterend",w);
+    var text=function(){var o=sel.options[sel.selectedIndex];return o&&o.value!==""?o.textContent:""};
+    inp.value=text();
+    var items=[],active=0;
+    function build(q){
+      if(!list){list=document.createElement("div");list.className="cb-list";list.setAttribute("role","listbox");document.body.appendChild(list)}
+      list.innerHTML="";items=[];var n=norm(q);
+      [].forEach.call(sel.options,function(o){
+        var pin=/^__/.test(o.value);
+        if(!pin&&n&&(o.value===""||norm(o.textContent).indexOf(n)<0))return;
+        if(!pin&&!n&&o.value==="")return;
+        var d=document.createElement("div");d.textContent=o.textContent;d.setAttribute("role","option");
+        if(pin)d.className="pin";if(o.value===sel.value&&o.value!=="")d.className+=" sel";
+        d.addEventListener("mousedown",function(e){e.preventDefault();pick(o.value)});
+        list.appendChild(d);items.push({d:d,v:o.value});
+      });
+      if(!items.length||(items.length===1&&/^__/.test(items[0].v)&&n)){var m=document.createElement("div");m.className="none";m.textContent="Nenhum resultado";list.insertBefore(m,list.firstChild)}
+      active=items.findIndex(function(x){return !/^__/.test(x.v)});if(active<0)active=0;mark();place();
+    }
+    function mark(){items.forEach(function(x,i){x.d.classList.toggle("on",i===active)});if(items[active])items[active].d.scrollIntoView({block:"nearest"})}
+    function place(){
+      var r=inp.getBoundingClientRect(),h=Math.min(280,window.innerHeight*.4),below=window.innerHeight-r.bottom;
+      list.style.left=r.left+"px";list.style.width=r.width+"px";list.style.maxHeight=h+"px";
+      if(below<Math.min(h,180)&&r.top>below){list.style.top="auto";list.style.bottom=(window.innerHeight-r.top+4)+"px"}
+      else{list.style.bottom="auto";list.style.top=(r.bottom+4)+"px"}
+    }
+    function pick(v){
+      sel.value=v;cur=null;if(list){list.remove();list=null}
+      inp.value=text();sel.dispatchEvent(new Event("change",{bubbles:true}));inp.blur();
+    }
+    inp.addEventListener("focus",function(){cur={input:inp,text:text};inp.select();build("")});
+    inp.addEventListener("input",function(){build(inp.value)});
+    inp.addEventListener("blur",function(){setTimeout(function(){if(document.activeElement!==inp)close()},120)});
+    inp.addEventListener("keydown",function(e){
+      if(!list)return;
+      if(e.key==="ArrowDown"){e.preventDefault();active=Math.min(items.length-1,active+1);mark()}
+      else if(e.key==="ArrowUp"){e.preventDefault();active=Math.max(0,active-1);mark()}
+      else if(e.key==="Enter"){e.preventDefault();if(items[active])pick(items[active].v)}
+      else if(e.key==="Escape"){e.preventDefault();e.stopPropagation();inp.blur()}
+    });
+  }
+  window.addEventListener("resize",function(){if(list)close()});
+  document.addEventListener("scroll",function(e){if(list&&!list.contains(e.target))close()},true);
+  window.__enhanceSearch=function(root){(root||document).querySelectorAll("select[data-search]:not([data-enh])").forEach(enhance)};
 })();
 </script>
 </body>
