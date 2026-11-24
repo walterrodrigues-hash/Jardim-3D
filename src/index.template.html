@@ -241,6 +241,14 @@ select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-t
 .srch span{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.7;pointer-events:none}
 .srch input{padding-left:36px;border-radius:999px}
 
+/* ---------- Resumo dos pedidos ---------- */
+.sumbar{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+.sumbar>div{--k:var(--c-violet);display:grid;gap:2px;padding:10px 16px;border-radius:16px;min-width:130px;background:linear-gradient(150deg,color-mix(in srgb,var(--k) 22%,transparent),var(--w03) 75%);border:1px solid color-mix(in srgb,var(--k) 50%,transparent)}
+.sumbar .k-blue{--k:var(--c-blue)} .sumbar .k-green{--k:var(--c-green)} .sumbar .k-orange{--k:var(--c-orange)}
+.sumbar span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--k) 70%,var(--mixc))}
+.sumbar b{font:700 20px var(--display);font-variant-numeric:tabular-nums}
+.sumbar .note-c{align-self:center;background:none;border:0;padding:0;min-width:0;font-size:12px;color:var(--muted)}
+
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -266,6 +274,10 @@ select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-t
   .kpi .l{font-size:10px}
   .row>label[style],.row label[style*="width"]{width:100%!important;max-width:none!important}
   .row{gap:8px}
+  .sumbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .sumbar>div{min-width:0;padding:9px 12px}
+  .sumbar b{font-size:17px}
+  .sumbar .note-c{grid-column:1/-1}
   .srch{flex:1 1 100%;max-width:none;order:5}
   .fg{grid-template-columns:1fr 1fr;gap:10px}
   .fg .w2,.fg .wall{grid-column:1/-1}
@@ -737,7 +749,8 @@ function vPainel(){
 /* ====================================================================
    PEDIDOS
    ==================================================================== */
-let PF={q:"",st:""};
+let PF={q:"",st:"",pg:""};
+const PAGF=[["quitado","Pagamento confirmado (quitado)"],["parcial","Pago parcialmente (sinal)"],["nenhum","Sem pagamento"]];
 function deadlineBadge(p){
   if(!["aprovado","producao","pronto"].includes(p.status))return "";
   const d=daysTo(p.prazo);if(d==null)return "";
@@ -745,10 +758,21 @@ function deadlineBadge(p){
   if(d<=2)return `<span class="badge b-warn">${d===0?"Hoje":d===1?"Amanhã":"Em 2 dias"}</span>`;
   return "";
 }
-function pedidosRows(){
-  const c=ctx(),q=PF.q.toLowerCase();
-  const list=D.pedidos.filter(p=>(!PF.st||p.status===PF.st)&&(!q||(cli(p.clienteId).nome+" "+p.numero+" "+(p.itens||[]).map(i=>i.desc).join(" ")).toLowerCase().includes(q)))
+function pagamentoDe(o){return o.pago>0.005?(o.saldo<=0.005?"quitado":"parcial"):"nenhum"}
+function pedidosLista(){
+  const c=ctx(),q=semAcento(PF.q);
+  return D.pedidos.filter(p=>(!PF.st||p.status===PF.st)&&(!PF.pg||pagamentoDe(orderCalc(p,c))===PF.pg)&&(!q||semAcento(cli(p.clienteId).nome+" "+p.numero+" "+(p.itens||[]).map(i=>i.desc).join(" ")).includes(q)))
     .sort((a,b)=>b.numero-a.numero);
+}
+function pedidosResumo(list){
+  const c=ctx(),v=list.filter(p=>p.status!=="cancelado").map(p=>orderCalc(p,c));
+  const tot=v.reduce((a,o)=>a+o.total,0),pago=v.reduce((a,o)=>a+Math.min(o.pago,o.total),0),saldo=v.reduce((a,o)=>a+Math.max(o.saldo,0),0);
+  const canc=list.length-v.length;
+  return `<div class="sumbar"><div><span>Pedidos</span><b>${v.length}</b></div><div class="k-blue"><span>Soma do total</span><b>${brl(tot)}</b></div><div class="k-green"><span>Recebido</span><b>${brl(pago)}</b></div><div class="k-orange"><span>A receber</span><b>${brl(saldo)}</b></div>${canc?`<div class="note-c">${canc} cancelado${canc>1?"s":""} fora da soma</div>`:""}</div>`;
+}
+function pedidosRefresh(){const l=pedidosLista();$("#prows").innerHTML=pedidosRows(l);$("#psum").innerHTML=pedidosResumo(l)}
+function pedidosRows(list){
+  const c=ctx();list=list||pedidosLista();
   if(!list.length)return `<tr><td colspan="9" class="empty">Nenhum pedido encontrado.</td></tr>`;
   return list.map(p=>{const o=orderCalc(p,c);return `<tr>
     <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)).join(", ")}</div></td>
@@ -762,12 +786,15 @@ function vPedidos(){
   return `<div class="panel"><div class="row" style="margin-bottom:12px"><h2 style="margin:0">Pedidos</h2><div class="sp"></div>
     <label style="width:220px">Pesquisar<input id="pq" value="${esc(PF.q)}" placeholder="cliente, número ou produto"></label>
     <label style="width:170px">Status<select id="ps"><option value="">Todos</option>${STAT.map(([k,l])=>`<option value="${k}"${PF.st===k?" selected":""}>${l}</option>`).join("")}</select></label>
+    <label style="width:230px">Pagamento<select id="pp"><option value="">Todos</option>${PAGF.map(([k,l])=>`<option value="${k}"${PF.pg===k?" selected":""}>${l}</option>`).join("")}</select></label>
     <button class="primary" data-act="novo-pedido">+ Novo pedido</button></div>
+    <div id="psum">${pedidosResumo(pedidosLista())}</div>
     <div class="tw"><table style="min-width:980px"><thead><tr><th>Nº</th><th>Cliente e itens</th><th>Data</th><th>Prazo</th><th>Status</th><th class="num">Total</th><th class="num">Saldo</th><th class="num">Lucro</th><th></th></tr></thead><tbody id="prows">${pedidosRows()}</tbody></table></div></div>`;
 }
 AFTER.pedidos=()=>{
-  $("#pq").oninput=e=>{PF.q=e.target.value;$("#prows").innerHTML=pedidosRows()};
-  $("#ps").onchange=e=>{PF.st=e.target.value;$("#prows").innerHTML=pedidosRows()};
+  $("#pq").oninput=e=>{PF.q=e.target.value;pedidosRefresh()};
+  $("#ps").onchange=e=>{PF.st=e.target.value;pedidosRefresh()};
+  $("#pp").onchange=e=>{PF.pg=e.target.value;pedidosRefresh()};
 };
 
 /* ---- editor de pedido ---- */
