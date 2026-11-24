@@ -860,13 +860,15 @@ function renderDraft(){
      ${draftEdit?"":`<label>Sinal recebido (R$)<input type="number" min="0" step="any" data-d="_sinal" value="${esc(draft._sinal||"")}"></label>`}
      <label class="wall">Observações<textarea data-d="obs">${esc(draft.obs)}</textarea></label>
    </div>
-   <div><h3>Fotos de referência (até 3)</h3><div class="pastebox" id="pasteBox" tabindex="0">📋 Cole aqui a imagem (Ctrl+V) ou arraste um arquivo</div><div class="thumbs" id="fotos">${(draft.fotos||[]).map((f,i)=>`<span><img src="${f}" alt="Foto ${i+1}"><br><button class="ghost" data-act="d-del-foto" data-i="${i}">remover</button></span>`).join("")}</div>
-     <input type="file" id="fotoIn" accept="image/*" style="margin-top:6px;max-width:320px"></div>
+   <div><h3>Fotos de referência (até 3)</h3><div class="pastebox" id="pasteBox" tabindex="0">📋 Cole aqui a imagem (Ctrl+V), arraste um arquivo ou clique para escolher</div><div class="thumbs" id="fotos">${(draft.fotos||[]).map((f,i)=>`<span><img src="${f}" alt="Foto ${i+1}"><br><button class="ghost" data-act="d-del-foto" data-i="${i}">remover</button></span>`).join("")}</div>
+     <div class="row" style="margin-top:8px"><button type="button" class="primary" id="btnFoto">🖼 Adicionar imagem</button><span class="mut sm">${(draft.fotos||[]).length}/3 · escolha do aparelho, tire uma foto ou cole (Ctrl+V)</span></div>
+     <input type="file" id="fotoIn" accept="image/*" multiple hidden></div>
    <div class="box" id="ptotals"></div></div>`;
   $$("[data-d]",root).forEach(el=>{const ev=el.tagName==="SELECT"?"change":"input";el.addEventListener(ev,()=>{setPath(draft,el.dataset.d,el.value);
     if(el.dataset.d==="clienteId")$("#newcli").hidden=el.value!=="__new";liveCalc()})});
-  $("#fotoIn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
-    if((draft.fotos||[]).length>=3)return;try{draft.fotos.push(await toThumb(f,480,.6));renderDraft()}catch(_){showErr(new Error("imagem inválida"))}};
+  $("#btnFoto").onclick=()=>$("#fotoIn").click();
+  $("#pasteBox").onclick=()=>$("#fotoIn").click();
+  $("#fotoIn").onchange=e=>{const fs=[...e.target.files];e.target.value="";addFotos(fs)};
   const box=$("#pasteBox");
   box.ondragover=e=>{e.preventDefault();box.classList.add("on")};box.ondragleave=()=>box.classList.remove("on");
   box.ondrop=e=>{e.preventDefault();box.classList.remove("on");addFotos([...(e.dataTransfer.files||[])])};
