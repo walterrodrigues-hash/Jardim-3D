@@ -911,7 +911,7 @@ function pagamentoModal(id){
   const opts=[["","Selecione o pedido"],...D.pedidos.filter(p=>p.status!=="cancelado").sort((a,b)=>b.numero-a.numero).map(p=>{const o=orderCalc(p,c);return [p.id,`#${p.numero} · ${cli(p.clienteId).nome} · saldo ${brl(o.saldo)}`]})];
   openModal("Registrar pagamento",`<div class="stack"><div class="fg">${SEL("Pedido","pid",opts,id||"","wall",'id="pagSel" data-search')}
     ${F("Valor (R$)","valor","",'type="number" min="0" step="any"')}${F("Data","data",today(),'type="date"')}
-    ${SEL("Forma","forma",["Pix","Dinheiro","Cartão","Transferência","Outro"].map(x=>[x,x]),"Pix")}${SEL("Tipo","tipo",[["pagamento","Pagamento"],["sinal","Sinal"]],"pagamento")}</div>
+    ${SEL("Forma","forma",["Pix","Dinheiro","Cartão","Transferência","Crediário Parceiro (Bemol)","Outro"].map(x=>[x,x]),"Pix")}${SEL("Tipo","tipo",[["pagamento","Pagamento"],["sinal","Sinal"]],"pagamento")}</div>
     <div id="pagHist"></div></div>`,[
     {label:"Fechar",fn:()=>{}},
     {label:"Registrar pagamento",primary:true,fn:async()=>{
