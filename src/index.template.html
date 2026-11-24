@@ -254,11 +254,13 @@ select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-t
 a.lnk{display:inline-block;align-self:end;padding:9px 14px;border-radius:12px;text-decoration:none;color:var(--fg);border:1px solid var(--w18,rgba(255,255,255,.2))}
 .lkimg{display:block;max-width:100%;max-height:240px;border-radius:14px;border:1px solid var(--w18);margin-top:2px}
 .lkth{width:34px;height:34px;object-fit:cover;border-radius:8px;vertical-align:middle}
-a.lkchip{display:inline-flex;align-items:center;gap:4px;margin-left:4px;padding:1px 9px 1px 6px;border-radius:999px;font-size:12px;text-decoration:none;color:var(--fg);background:var(--w06);border:1px solid var(--w18);vertical-align:middle}
-a.lkchip:hover{border-color:var(--c-blue)}
-button.lkchip{cursor:pointer;font:inherit;font-size:12px;color:var(--fg)}
 .galeria{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .galeria img{width:100%;border-radius:14px;border:1px solid var(--w18);background:var(--w06)}
+.lkchip,button.lkchip{appearance:none;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:26px;margin:2px 0 0 6px;padding:0 11px 0 8px;border-radius:999px;font:600 12px/1 var(--font,inherit);letter-spacing:.01em;white-space:nowrap;text-decoration:none;color:var(--fg);background:var(--w06);border:1px solid var(--w18);cursor:pointer;vertical-align:middle;transition:border-color .15s,background .15s}
+.lkchip:first-of-type{margin-left:0}
+.lkchip:hover,button.lkchip:hover{border-color:var(--c-blue);background:var(--w10,var(--w06))}
+.lkchip .lkic{font-size:13px;line-height:1}
+button.anexo{padding:0 11px 0 9px}
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -785,7 +787,7 @@ function pedidosRows(list){
   const c=ctx();list=list||pedidosLista();
   if(!list.length)return `<tr><td colspan="9" class="empty">Nenhum pedido encontrado.</td></tr>`;
   return list.map(p=>{const o=orderCalc(p,c);return `<tr>
-    <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)+(linkOk(i.link)?` <a href="${esc(i.link.trim())}" target="_blank" rel="noopener noreferrer" class="lkchip" title="Abrir link do modelo"><span class="lkic">${linkInfo(i.link).ic}</span>${esc(linkInfo(i.link).nm)}</a>`:"")).join(", ")}${(p.fotos||[]).length?` <button type="button" class="lkchip anexo" data-act="ver-fotos" data-id="${p.id}" title="Ver imagens anexadas" aria-label="Ver imagens anexadas">📎 ${p.fotos.length}</button>`:""}</div></td>
+    <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)+(linkOk(i.link)?` <a href="${esc(i.link.trim())}" target="_blank" rel="noopener noreferrer" class="lkchip" title="Abrir link do modelo"><span class="lkic">${linkInfo(i.link).ic}</span>${esc(linkInfo(i.link).nm)}</a>`:"")).join(", ")}${(p.fotos||[]).length?` <button type="button" class="lkchip anexo" data-act="ver-fotos" data-id="${p.id}" title="Ver imagens anexadas" aria-label="Ver imagens anexadas"><span class="lkic">📎</span>${p.fotos.length}</button>`:""}</div></td>
     <td>${fmtD(p.data)}</td><td>${fmtD(p.prazo)} ${deadlineBadge(p)}</td>
     <td><select class="stsel" data-st="${p.status}" data-act-change="status" data-id="${p.id}" aria-label="Status do pedido ${p.numero}">${STAT.map(([k,l])=>`<option value="${k}"${k===p.status?" selected":""}>${l}</option>`).join("")}</select></td>
     <td class="num">${brl(o.total)}</td><td class="num ${o.saldo>0.005&&p.status!=="cancelado"?"warn":""}">${brl(o.saldo)}</td>
