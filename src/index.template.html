@@ -249,6 +249,9 @@ select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-t
 .sumbar b{font:700 20px var(--display);font-variant-numeric:tabular-nums}
 .sumbar .note-c{align-self:center;background:none;border:0;padding:0;min-width:0;font-size:12px;color:var(--muted)}
 
+.pastebox{margin:6px 0 8px;padding:14px;border:1.5px dashed var(--w22,rgba(255,255,255,.3));border-radius:14px;text-align:center;color:var(--muted);font-size:13px;outline:none}
+.pastebox:focus,.pastebox.on{border-color:var(--c-blue);background:var(--w06);color:var(--fg)}
+a.lnk{display:inline-block;align-self:end;padding:9px 14px;border-radius:12px;text-decoration:none;color:var(--fg);border:1px solid var(--w18,rgba(255,255,255,.2))}
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -775,7 +778,7 @@ function pedidosRows(list){
   const c=ctx();list=list||pedidosLista();
   if(!list.length)return `<tr><td colspan="9" class="empty">Nenhum pedido encontrado.</td></tr>`;
   return list.map(p=>{const o=orderCalc(p,c);return `<tr>
-    <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)).join(", ")}</div></td>
+    <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)+(linkOk(i.link)?` <a href="${esc(i.link.trim())}" target="_blank" rel="noopener noreferrer" title="Abrir link do modelo">🔗</a>`:"")).join(", ")}</div></td>
     <td>${fmtD(p.data)}</td><td>${fmtD(p.prazo)} ${deadlineBadge(p)}</td>
     <td><select class="stsel" data-st="${p.status}" data-act-change="status" data-id="${p.id}" aria-label="Status do pedido ${p.numero}">${STAT.map(([k,l])=>`<option value="${k}"${k===p.status?" selected":""}>${l}</option>`).join("")}</select></td>
     <td class="num">${brl(o.total)}</td><td class="num ${o.saldo>0.005&&p.status!=="cancelado"?"warn":""}">${brl(o.saldo)}</td>
@@ -798,7 +801,8 @@ AFTER.pedidos=()=>{
 };
 
 /* ---- editor de pedido ---- */
-const blankItem=()=>({desc:"",qtd:1,cores:"",pers:"",preco:"",fil:[{id:"",g:""}],horas:"",imp:(D.impressoras[0]||{}).id||"",min:"",emb:"",acab:"",outros:"",perdaPct:cfg().perda});
+const linkOk=u=>/^https?:\/\/\S+$/i.test(String(u||"").trim());
+const blankItem=()=>({link:"",desc:"",qtd:1,cores:"",pers:"",preco:"",fil:[{id:"",g:""}],horas:"",imp:(D.impressoras[0]||{}).id||"",min:"",emb:"",acab:"",outros:"",perdaPct:cfg().perda});
 let draft=null,draftEdit=null;
 function nextNumero(){return D.pedidos.reduce((m,p)=>Math.max(m,p.numero||0),0)+1}
 function pedidoModal(p){
@@ -832,6 +836,8 @@ function renderDraft(){
        <label>Cores<input data-d="itens.${i}.cores" value="${esc(it.cores)}" placeholder="Ex.: branco e verde"></label>
        <label class="w2">Personalização<input data-d="itens.${i}.pers" value="${esc(it.pers)}" placeholder="Ex.: nome Ana"></label>
        <label>Preço unitário (R$)<input type="number" min="0" step="any" data-d="itens.${i}.preco" value="${esc(it.preco)}"></label>
+       <label class="w2">Link do modelo / arquivo (para imprimir)<input type="url" inputmode="url" data-d="itens.${i}.link" value="${esc(it.link||"")}" placeholder="Cole o link (MakerWorld, Printables, Drive...)"></label>
+       ${linkOk(it.link)?`<a class="ghost lnk" href="${esc(it.link.trim())}" target="_blank" rel="noopener noreferrer">Abrir link ↗</a>`:""}
      </div>
      <div class="box"><h3>Ficha de custo (por unidade)</h3>
        ${it.fil.map((l,k)=>`<div class="fl" style="margin-bottom:6px">${SEL("Filamento","",fils,l.id,"",`data-d="itens.${i}.fil.${k}.id" data-search`)}<label>Gramas<input type="number" min="0" step="any" data-d="itens.${i}.fil.${k}.g" value="${esc(l.g)}"></label>${it.fil.length>1?`<button class="ghost danger" data-act="d-del-fil" data-i="${i}" data-k="${k}" aria-label="Remover filamento">✕</button>`:"<span></span>"}</div>`).join("")}
@@ -854,15 +860,30 @@ function renderDraft(){
      ${draftEdit?"":`<label>Sinal recebido (R$)<input type="number" min="0" step="any" data-d="_sinal" value="${esc(draft._sinal||"")}"></label>`}
      <label class="wall">Observações<textarea data-d="obs">${esc(draft.obs)}</textarea></label>
    </div>
-   <div><h3>Fotos de referência (até 3)</h3><div class="thumbs" id="fotos">${(draft.fotos||[]).map((f,i)=>`<span><img src="${f}" alt="Foto ${i+1}"><br><button class="ghost" data-act="d-del-foto" data-i="${i}">remover</button></span>`).join("")}</div>
+   <div><h3>Fotos de referência (até 3)</h3><div class="pastebox" id="pasteBox" tabindex="0">📋 Cole aqui a imagem (Ctrl+V) ou arraste um arquivo</div><div class="thumbs" id="fotos">${(draft.fotos||[]).map((f,i)=>`<span><img src="${f}" alt="Foto ${i+1}"><br><button class="ghost" data-act="d-del-foto" data-i="${i}">remover</button></span>`).join("")}</div>
      <input type="file" id="fotoIn" accept="image/*" style="margin-top:6px;max-width:320px"></div>
    <div class="box" id="ptotals"></div></div>`;
   $$("[data-d]",root).forEach(el=>{const ev=el.tagName==="SELECT"?"change":"input";el.addEventListener(ev,()=>{setPath(draft,el.dataset.d,el.value);
     if(el.dataset.d==="clienteId")$("#newcli").hidden=el.value!=="__new";liveCalc()})});
   $("#fotoIn").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
     if((draft.fotos||[]).length>=3)return;try{draft.fotos.push(await toThumb(f,480,.6));renderDraft()}catch(_){showErr(new Error("imagem inválida"))}};
+  const box=$("#pasteBox");
+  box.ondragover=e=>{e.preventDefault();box.classList.add("on")};box.ondragleave=()=>box.classList.remove("on");
+  box.ondrop=e=>{e.preventDefault();box.classList.remove("on");addFotos([...(e.dataTransfer.files||[])])};
   liveCalc();
 }
+async function addFotos(files){
+  files=files.filter(f=>/^image\//.test(f.type));if(!files.length||!draft)return;
+  draft.fotos=draft.fotos||[];
+  for(const f of files){if(draft.fotos.length>=3){showErr(new Error("Máximo de 3 fotos por pedido."));break}
+    try{draft.fotos.push(await toThumb(f,480,.6))}catch(_){showErr(new Error("imagem inválida"))}}
+  renderDraft();
+}
+document.addEventListener("paste",e=>{
+  if(!draft||!document.getElementById("pasteBox"))return;
+  const fs=[...((e.clipboardData&&e.clipboardData.files)||[])].filter(f=>/^image\//.test(f.type));
+  if(!fs.length)return;e.preventDefault();addFotos(fs);
+});
 function setPath(o,path,val){const ks=path.split(".");let t=o;for(let i=0;i<ks.length-1;i++)t=t[ks[i]];t[ks[ks.length-1]]=val}
 function toThumb(file,max,q){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));
