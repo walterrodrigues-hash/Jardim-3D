@@ -252,6 +252,8 @@ select.stsel[data-st="cancelado"]{text-decoration:line-through;text-decoration-t
 .pastebox{margin:6px 0 8px;padding:14px;border:1.5px dashed var(--w22,rgba(255,255,255,.3));border-radius:14px;text-align:center;color:var(--muted);font-size:13px;outline:none}
 .pastebox:focus,.pastebox.on{border-color:var(--c-blue);background:var(--w06);color:var(--fg)}
 a.lnk{display:inline-block;align-self:end;padding:9px 14px;border-radius:12px;text-decoration:none;color:var(--fg);border:1px solid var(--w18,rgba(255,255,255,.2))}
+.lkimg{display:block;max-width:100%;max-height:240px;border-radius:14px;border:1px solid var(--w18);margin-top:2px}
+.lkth{width:34px;height:34px;object-fit:cover;border-radius:8px;vertical-align:middle}
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -778,7 +780,7 @@ function pedidosRows(list){
   const c=ctx();list=list||pedidosLista();
   if(!list.length)return `<tr><td colspan="9" class="empty">Nenhum pedido encontrado.</td></tr>`;
   return list.map(p=>{const o=orderCalc(p,c);return `<tr>
-    <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)+(linkOk(i.link)?` <a href="${esc(i.link.trim())}" target="_blank" rel="noopener noreferrer" title="Abrir link do modelo">🔗</a>`:"")).join(", ")}</div></td>
+    <td><strong>#${p.numero}</strong>${demoTag(p)}</td><td>${esc(cli(p.clienteId).nome)}<div class="mut sm">${(p.itens||[]).map(i=>n0(i.qtd)+"× "+esc(i.desc)+(linkOk(i.link)?` <a href="${esc(i.link.trim())}" target="_blank" rel="noopener noreferrer" title="Abrir link do modelo"><img class="lkth" src="${esc(i.link.trim())}" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.replaceWith('🔗')"></a>`:"")).join(", ")}</div></td>
     <td>${fmtD(p.data)}</td><td>${fmtD(p.prazo)} ${deadlineBadge(p)}</td>
     <td><select class="stsel" data-st="${p.status}" data-act-change="status" data-id="${p.id}" aria-label="Status do pedido ${p.numero}">${STAT.map(([k,l])=>`<option value="${k}"${k===p.status?" selected":""}>${l}</option>`).join("")}</select></td>
     <td class="num">${brl(o.total)}</td><td class="num ${o.saldo>0.005&&p.status!=="cancelado"?"warn":""}">${brl(o.saldo)}</td>
@@ -837,7 +839,7 @@ function renderDraft(){
        <label class="w2">Personalização<input data-d="itens.${i}.pers" value="${esc(it.pers)}" placeholder="Ex.: nome Ana"></label>
        <label>Preço unitário (R$)<input type="number" min="0" step="any" data-d="itens.${i}.preco" value="${esc(it.preco)}"></label>
        <label class="w2">Link do modelo / arquivo (para imprimir)<input type="url" inputmode="url" data-d="itens.${i}.link" value="${esc(it.link||"")}" placeholder="Cole o link (MakerWorld, Printables, Drive...)"></label>
-       ${linkOk(it.link)?`<a class="ghost lnk" href="${esc(it.link.trim())}" target="_blank" rel="noopener noreferrer">Abrir link ↗</a>`:""}
+       ${linkOk(it.link)?`<a class="ghost lnk" href="${esc(it.link.trim())}" target="_blank" rel="noopener noreferrer">Abrir link ↗</a><a class="wall" href="${esc(it.link.trim())}" target="_blank" rel="noopener noreferrer"><img class="lkimg" src="${esc(it.link.trim())}" alt="Imagem do link" referrerpolicy="no-referrer" loading="lazy" onerror="this.parentNode.hidden=true"></a>`:""}
      </div>
      <div class="box"><h3>Ficha de custo (por unidade)</h3>
        ${it.fil.map((l,k)=>`<div class="fl" style="margin-bottom:6px">${SEL("Filamento","",fils,l.id,"",`data-d="itens.${i}.fil.${k}.id" data-search`)}<label>Gramas<input type="number" min="0" step="any" data-d="itens.${i}.fil.${k}.g" value="${esc(l.g)}"></label>${it.fil.length>1?`<button class="ghost danger" data-act="d-del-fil" data-i="${i}" data-k="${k}" aria-label="Remover filamento">✕</button>`:"<span></span>"}</div>`).join("")}
@@ -866,6 +868,7 @@ function renderDraft(){
    <div class="box" id="ptotals"></div></div>`;
   $$("[data-d]",root).forEach(el=>{const ev=el.tagName==="SELECT"?"change":"input";el.addEventListener(ev,()=>{setPath(draft,el.dataset.d,el.value);
     if(el.dataset.d==="clienteId")$("#newcli").hidden=el.value!=="__new";liveCalc()})});
+  $$('[data-d$=".link"]',root).forEach(el=>el.addEventListener("change",()=>renderDraft()));
   $("#btnFoto").onclick=()=>$("#fotoIn").click();
   $("#pasteBox").onclick=()=>$("#fotoIn").click();
   $("#fotoIn").onchange=e=>{const fs=[...e.target.files];e.target.value="";addFotos(fs)};
