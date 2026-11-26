@@ -261,6 +261,9 @@ a.lnk{display:inline-block;align-self:end;padding:9px 14px;border-radius:12px;te
 .lkchip:hover,button.lkchip:hover{border-color:var(--c-blue);background:var(--w10,var(--w06))}
 .lkchip .lkic{font-size:13px;line-height:1}
 button.anexo{padding:0 11px 0 9px}
+.lucrotd{white-space:nowrap}
+.lucrotd .lucv{display:inline-block;vertical-align:middle}
+.pgbadge{display:inline-flex;align-items:center;justify-content:center;height:24px;min-width:34px;margin-left:10px;padding:0 9px;border-radius:999px;vertical-align:middle;font:800 11px/1 var(--font,inherit);letter-spacing:.08em;color:var(--good);background:linear-gradient(150deg,color-mix(in srgb,var(--good) 28%,transparent),var(--w03));border:1px solid color-mix(in srgb,var(--good) 60%,transparent)}
 /* ---------- Mobile ---------- */
 .panel:has(>svg.ch){overflow-x:auto}
 @media (max-width:760px){
@@ -791,7 +794,7 @@ function pedidosRows(list){
     <td>${fmtD(p.data)}</td><td>${fmtD(p.prazo)} ${deadlineBadge(p)}</td>
     <td><select class="stsel" data-st="${p.status}" data-act-change="status" data-id="${p.id}" aria-label="Status do pedido ${p.numero}">${STAT.map(([k,l])=>`<option value="${k}"${k===p.status?" selected":""}>${l}</option>`).join("")}</select></td>
     <td class="num">${brl(o.total)}</td><td class="num ${o.saldo>0.005&&p.status!=="cancelado"?"warn":""}">${brl(o.saldo)}</td>
-    <td class="num ${o.lucro>=0?"good":"bad"}">${brl(o.lucro)}<div class="mut sm">${o.apurado?"apurado":"estimado"}</div></td>
+    <td class="num lucrotd"><span class="lucv ${o.lucro>=0?"good":"bad"}">${brl(o.lucro)}<div class="mut sm">${o.apurado?"apurado":"estimado"}</div></span>${pagamentoDe(o)==="quitado"&&p.status!=="cancelado"?'<span class="pgbadge" title="Pagamento realizado: saldo zerado">PG</span>':""}</td>
     <td class="num"><button class="ghost" data-act="edit-pedido" data-id="${p.id}">Editar</button><button class="ghost" data-act="dup-pedido" data-id="${p.id}">Duplicar</button><button class="ghost" data-act="pag-pedido" data-id="${p.id}">Pagamento</button>${p.producao||p.status==="orcamento"||p.status==="cancelado"?"":`<button class="ghost" data-act="producao" data-id="${p.id}">Produção</button>`}<button class="ghost danger" data-act="del-pedido" data-id="${p.id}">Excluir</button></td></tr>`}).join("");
 }
 function vPedidos(){
