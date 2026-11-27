@@ -807,7 +807,7 @@ function vPedidos(){
     <label style="width:230px">Pagamento<select id="pp"><option value="">Todos</option>${PAGF.map(([k,l])=>`<option value="${k}"${PF.pg===k?" selected":""}>${l}</option>`).join("")}</select></label>
     <button class="primary" data-act="novo-pedido">+ Novo pedido</button></div>
     <div id="psum">${pedidosResumo(pedidosLista())}</div>
-    <div class="tw"><table style="min-width:1080px"><thead><tr><th>Nº</th><th>Cliente e itens</th><th>Data</th><th>Prazo</th><th>Status</th><th class="num">Total</th><th class="num">Saldo</th><th class="pgth">Pagamento realizado</th><th class="num">Lucro</th><th></th></tr></thead><tbody id="prows">${pedidosRows()}</tbody></table></div></div>`;
+    <div class="tw"><table style="min-width:1080px"><thead><tr><th>Nº</th><th>Cliente e itens</th><th>Data</th><th>Prazo</th><th>Status</th><th class="num">Total</th><th class="num">Saldo</th><th class="pgth">Pagamento</th><th class="num">Lucro</th><th></th></tr></thead><tbody id="prows">${pedidosRows()}</tbody></table></div></div>`;
 }
 AFTER.pedidos=()=>{
   $("#pq").oninput=e=>{PF.q=e.target.value;pedidosRefresh()};
